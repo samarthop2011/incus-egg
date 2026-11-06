@@ -1,0 +1,158 @@
+{
+  "_comment": "SAM INCUS CLOUD remote Incus container lifecycle egg. Requires restricted Incus TLS client credentials.",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-06T00:00:00+00:00",
+  "name": "SAM Incus VPS",
+  "author": "SAM INCUS CLOUD",
+  "description": "Creates and starts one remote Incus container per Pterodactyl server using the Incus HTTPS API.",
+  "features": [],
+  "docker_images": {
+    "Python 3.12": "python:3.12-slim"
+  },
+  "file_denylist": [],
+  "startup": "python3 -u /home/container/incus_egg.py",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\": \"Lifecycle wrapper active for\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\\nset -e\\ncd /mnt/server\\npython3 -m pip install --no-cache-dir requests\\nif [ ! -f incus_egg.py ]; then echo 'Upload incus_egg.py to the server root before installation.'; exit 1; fi\\nchmod 755 incus_egg.py\\necho 'SAM Incus egg installed.'",
+      "container": "python:3.12-slim",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Incus API URL",
+      "description": "Private HTTPS API URL reachable from Wings, e.g. https://10.0.0.5:8443",
+      "env_variable": "INCUS_API_URL",
+      "default_value": "https://127.0.0.1:8443",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|string"
+    },
+    {
+      "name": "Incus Project",
+      "description": "Dedicated Incus project for managed VPS instances.",
+      "env_variable": "INCUS_PROJECT",
+      "default_value": "default",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string|max:64"
+    },
+    {
+      "name": "Client certificate path",
+      "description": "Path to Incus TLS client certificate uploaded to this server.",
+      "env_variable": "INCUS_CLIENT_CERT",
+      "default_value": "/home/container/certs/client.crt",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string"
+    },
+    {
+      "name": "Client private key path",
+      "description": "Matching TLS private key. Never expose this file or variable to customers.",
+      "env_variable": "INCUS_CLIENT_KEY",
+      "default_value": "/home/container/certs/client.key",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string"
+    },
+    {
+      "name": "Server CA path",
+      "description": "Optional CA certificate file used to verify the Incus API server certificate.",
+      "env_variable": "INCUS_SERVER_CA",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "nullable|string"
+    },
+    {
+      "name": "TLS verification",
+      "description": "Keep true in production; use a trusted CA instead of disabling verification.",
+      "env_variable": "INCUS_TLS_VERIFY",
+      "default_value": "true",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|in:true,false"
+    },
+    {
+      "name": "Instance name override",
+      "description": "Leave blank to derive a unique name from the Pterodactyl server UUID.",
+      "env_variable": "INCUS_INSTANCE_NAME",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "nullable|string|max:60"
+    },
+    {
+      "name": "Incus image",
+      "description": "Image alias available to Incus, e.g. images:debian/13 or images:ubuntu/24.04.",
+      "env_variable": "INCUS_IMAGE",
+      "default_value": "images:debian/13",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128"
+    },
+    {
+      "name": "RAM limit",
+      "description": "Actual Incus RAM limit, e.g. 4GiB. Set by admin according to plan.",
+      "env_variable": "INCUS_RAM",
+      "default_value": "4GiB",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|string|max:16"
+    },
+    {
+      "name": "CPU limit",
+      "description": "Actual Incus CPU limit.",
+      "env_variable": "INCUS_CPU",
+      "default_value": "2",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|numeric|min:1|max:128"
+    },
+    {
+      "name": "Disk limit",
+      "description": "Actual Incus root disk size, e.g. 25GiB.",
+      "env_variable": "INCUS_DISK",
+      "default_value": "25GiB",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|string|max:16"
+    },
+    {
+      "name": "Storage pool",
+      "description": "Existing Incus storage pool.",
+      "env_variable": "INCUS_STORAGE_POOL",
+      "default_value": "default",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string|max:64"
+    },
+    {
+      "name": "Incus bridge",
+      "description": "Existing Incus bridge, commonly incusbr0.",
+      "env_variable": "INCUS_BRIDGE",
+      "default_value": "incusbr0",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string|max:64"
+    },
+    {
+      "name": "Enable nesting",
+      "description": "Enable only if required and approved by the administrator.",
+      "env_variable": "INCUS_NESTING",
+      "default_value": "false",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|in:true,false"
+    }
+  ]
+}
